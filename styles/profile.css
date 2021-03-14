@@ -1,0 +1,171 @@
+html{
+    background: url("image/b222.jpg") no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+body{
+    margin: 20px 10px;
+    padding: 0 auto;
+}
+.header1{
+    height: 2.7cm;
+    background-color: rgb(255, 255, 255);
+    border: 4px double rgb(255, 0, 0);
+}
+
+.header2{
+    padding-bottom: 1.5cm;
+}
+.headRight{
+    float: right;
+    padding-left: 15px;
+}
+.headLeft{
+    padding-left: 15px;
+    padding-right: 5px;
+    float: left;
+}
+.img1{
+    height: 2.6cm;
+}
+
+
+div{
+    margin-top: 0.3em;
+}
+
+.infoform{
+   
+    margin: 0 auto;
+    width: 60%;
+    margin:50px auto;
+    background-color: #979797dc;
+    -webkit-box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.75);
+    padding: 50px;
+    padding-left: 5cm;
+}
+
+h4{
+    display: inline-block;
+    width: 180px;
+    text-align: left;
+}
+
+p{
+    display: inline-block;
+}
+form{
+    
+    margin: 0 auto;
+    width: 60%;
+    margin:50px auto;
+    background-color: #ffffff85;
+    -webkit-box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.75);
+    -moz-box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.75);
+    padding: 50px;
+    padding-bottom: 2cm;
+    
+}
+label{
+    display: inline-block;
+    width: 180px;
+    text-align: left;
+    font-size: 20px;
+}
+input{
+    width: 300px;
+    padding: 10px;
+    margin: 5px 0 10px 0;
+    display: inline-block;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-bottom: 1px solid rgb(85, 85, 85);
+
+    font-size: 18px;
+    background-color: #ffffff85;
+
+}
+table{
+    width: 70%;
+    margin: 30px auto;
+    border-collapse: collapse;
+    text-align: left;
+    background-color: rgb(194, 194, 194);
+    -webkit-box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.75);
+    -moz-box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.75);
+}
+tr {
+    border-bottom: 1px solid #636363;
+}
+th, td{
+    border: none;
+    height: 30px;
+    padding: 2px;
+}
+tr:hover {
+    background: rgb(230, 228, 228);
+}
+
+.btn,.button1,.button2{
+    padding: 10px;
+    padding-left: 25px;
+    padding-right: 25px;
+    background-color: #ffe3e3;
+    border: 2px solid rgb(0, 0, 0);
+    font-size: 14px;
+    
+}
+.button2:hover{
+    background-color: rgb(0, 255, 13);
+    
+}
+.button1:hover{
+    background-color: rgb(255, 17, 0);
+}
+.btn:hover{
+    background-color: rgb(255, 230, 0);
+
+}
+.btn2{
+    float: right;
+    margin: 0 auto;
+    padding: 10px 10px;
+    background: linear-gradient(rgb(100, 100, 100),rgb(51, 58, 77));
+    border: 1px solid rgb(106, 116, 108);
+    font-size: 14px;
+    color: #ffe3e3;
+}
+.edit_btn {
+    text-decoration: none;
+    padding: 2px 5px;
+    background: #2E8B57;
+    color: white;
+    border-radius: 3px;
+    float: center;
+}
+
+.del_btn {
+    text-decoration: none;
+    padding: 2px 5px;
+    color: white;
+    border-radius: 3px;
+    background: #800000;
+    float: center;
+    text-align: center;
+}
+.mid{
+    text-align: center;
+
+}
+button{
+    font-weight:bold;
+}
+
+

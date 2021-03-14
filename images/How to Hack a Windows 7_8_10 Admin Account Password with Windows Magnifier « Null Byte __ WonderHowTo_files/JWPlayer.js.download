@@ -1,0 +1,665 @@
+/*global ga, tmntag, requirejs */
+/*jshint loopfunc: true */
+(function() {
+  "use strict";
+  function isMacro(text) {
+    return text.indexOf('${') >= 0;
+  }
+
+  function defaultValue(str, defaultValue) {
+    return isMacro(str) ? defaultValue : str;
+  }
+
+  // jwplayer
+  var Jwplayer = function(o) {
+    o.init = o.init || true;
+    o.settings = o.settings && defaultValue(o.settings, '{}');
+    try {
+      o.settings = JSON.parse(o.settings);
+    } catch (e) {
+      o.settings = {};
+    }
+
+    this.playlistTarget = defaultValue(o.playlistTarget, '.null');
+    this.playlistTargetHandler = defaultValue(o.playlistTargetHandler, 'afterend');
+    this.playerLicenseKey = defaultValue(o.playerLicenseKey, 'NLVTwYKe5kBs2O1ZEZFGvVo1Y44MJtPAymTh/PhEGb7r7GUh');
+    this.playlistId = defaultValue(o.playlistId, 'VDpm3tMH');
+    this.rightRail = defaultValue(o.rightRail, '.page-content-rightcol');
+    this.container = defaultValue(o.container, '.null');
+    this.recommendationsURL = defaultValue(o.recommendationsURL, '');
+    this.rightRailEl = document.querySelector(this.rightRail);
+    this.containerEl = document.querySelector(this.container);
+    this.playerSrc =  defaultValue(o.playerSrc, 'https://assets.purch.com/ramp/assets/jwplayer/jwplayer-8.2.3-self-hosted.js');
+    this.playlistSrc = 'https://content.jwplatform.com/feeds/' + this.playlistId + '.json';
+    this.scriptsLoaded = [];
+    this.gaInited = false;
+    this.gaAccount = o.gaAccount;
+    this.playerContainers = {};
+    this.autoplay = o.device.toLowerCase() !== 'mobile';
+    this.customStyles = defaultValue(o.customStyles, '.jw-loaded { background-color: rgba(0,0,0,.1); margin: 5px 0; }');
+    this.useNativeDocking = o.useNativeDocking && defaultValue(o.useNativeDocking, 'false') === 'true';
+    this.randomizePlaylist = o.randomizePlaylist && defaultValue(o.randomizePlaylist, 'false') === 'true';
+
+    var bids = isMacro(o.bidderID) ? null : {
+      bids: {
+        settings: {
+          mediationLayerAdServer: "dfp",
+        },
+        bidders: [
+          {
+            name: "SpotX",
+            id: o.bidderID,
+            optionalParams: { ad_volume: Number(o.device.toLowerCase() === 'mobile') }
+          }
+        ]
+      }
+    };
+
+    var advertising = Object.assign({
+      client: 'googima'
+    }, bids);
+
+    this.settings = {
+      advertising: advertising,
+      ga: {
+        idstring: 'gtm21',
+        label: 'JWPlayer'
+      },
+      controls: true,
+      width: "100%",
+      stretching: "uniform",
+      aspectratio: "16:9",
+      primary: "html5",
+      related: {
+          file: this.recommendationsURL,
+          oncomplete: 'show'
+      },
+      localization: {
+        related: 'Your Recommended Playlist'
+      },
+      mute: true,
+      autostart: false,
+      sharing: {
+        link: document.location.href,
+        sites: [
+          "facebook",
+          "twitter",
+          "email",
+          "reddit"
+        ]
+      },
+      key: this.playerLicenseKey
+    };
+
+    for (var s in o.settings) {
+      if (o.settings.hasOwnProperty(s)) {
+        this.settings[s] = o.settings[s];
+      }
+    }
+
+    var self = this;
+    // DES-640 - JWP - Video on Slideshows
+    [].slice.call(document.querySelectorAll('.carousel-loadable')).forEach(function(carousel) {
+      carousel.addEventListener('carousel-loadable-complete', self.init.bind(self));
+    }, this);
+
+    if (o.init === true) {
+      this.init();
+    }
+  };
+
+  Jwplayer.prototype = {
+    init: function() {
+      window.onbeforeunload = function() {
+          if(sessionStorage.jwDisableDocking){
+            sessionStorage.removeItem('jwDisableDocking');
+          }
+          return undefined;
+      };
+      this.addStyles();
+      if (this.useNativeDocking) {
+        this.initNativeDocking()
+      }
+
+      var players = this.getPlayers();
+      if (!players.length) {
+        if (window.Purch && window.Purch.JwShowPlaylist === true) {
+          return this.renderPlaylist();
+        }
+      }
+
+      this.addScript(this.playerSrc, this.initPlayers.bind(this, players));
+    },
+    getLeftAndWidth: function() {
+      var rightRail = this.rightRailEl && this.rightRailEl.getBoundingClientRect();
+      var container = this.containerEl && this.containerEl.getBoundingClientRect();
+      var hasRightRail = rightRail && rightRail.right;
+      // we have right rail and it's not hidden
+      var width = hasRightRail ? rightRail.width : 300;
+
+      // we have to return two positions
+      // to stick on the bottom left (listings)  and bottom right (contents)
+      var bottomRight = (hasRightRail ? rightRail.right : container.right) - width;
+      var bottomLeft = container.left;
+
+      return {
+        bottomRight: bottomRight,
+        bottomLeft: bottomLeft,
+        width: width
+      };
+    },
+    getMinimizedPositions: function(dimensions) {
+      return [
+        // by default, stick on the right
+        '.jw-player-minimize .jw-player-position {',
+          'left:' + dimensions.bottomRight + 'px;',
+        '}',
+        // listing pages
+        '.listing .jw-player-minimize .jw-player-position,',
+        '.listing-page .jw-player-minimize .jw-player-position {',
+          'left:' + dimensions.bottomLeft + 'px;',
+        '}'
+      ].join('')
+    },
+    addStyles: function() {
+      var dimensions = this.getLeftAndWidth();
+      var styles = [
+        this.customStyles,
+        '.jw-loaded div{color: #FFF !important}',
+        '.jw-dock-image { background-size:45%; }',
+        '.jw-dock-button[button="close"] { display:none; }',
+        '@media screen and (min-width: 668px) {',
+          '@keyframes jw-minimize {',
+            '0%   { opacity: 0; }',
+            '100% { opacity: 1; }',
+          '}',
+          '.jw-player-minimize { animation: jw-minimize .6s; }',
+          '.jw-player-minimize .jw-dock-button[button="close"] { display:inherit; }',
+          '.jw-player-minimize .jw-flag-small-player .jw-dock-button { width:30px;height:30px; }',
+          '.jw-player-minimize .jw-player-position {',
+            'transition: top .2s, transform .2s;',
+            'box-shadow: 0 0 6px 2px rgba(0,0,0,.4);',
+            'position: fixed; z-index:9999; width:'+dimensions.width+'px; bottom: 0;',
+          '}',
+          this.getMinimizedPositions(dimensions),
+        '}'
+      ].join('');
+      var s = document.createElement('style');
+      s.id = 'jw-main-styles';
+      this.resizeStyles = document.createElement('style');
+      this.resizeStyles.id = 'jw-resize-styles';
+      this.stickyStyles = document.createElement('style');
+      this.stickyStyles.id = 'jw-sticky-styles';
+      this.offsetBottomStyles = document.createElement('style');
+      this.offsetBottomStyles.id = 'jw-offset-bottom-styles';
+      s.innerHTML = styles;
+      document.head.appendChild(s);
+      document.head.appendChild(this.resizeStyles);
+      document.head.appendChild(this.stickyStyles);
+      document.head.appendChild(this.offsetBottomStyles);
+    },
+    addScript: function(src, cb) {
+      cb = cb || function() {};
+      var self = this;
+      if (this.scriptsLoaded.indexOf(src) >= 0) {
+        return cb();
+      }
+
+      if (window.require && window.requirejs){
+        requirejs.config({"paths":{"jwPlatformLib":src.replace('.js','')}});
+        require(["jwPlatformLib"],function(jwPlatformLib){
+          self.scriptsLoaded.push(src);
+          cb();
+        });
+        return;
+      } else {
+        var s = document.createElement('script');
+        s.src = src;
+        s.onload = function() {
+          self.scriptsLoaded.push(src);
+          cb();
+        };
+        document.head.appendChild(s);
+      }
+    },
+    getSettings: function() {
+      // get a copy of the settings so it's always clean
+      return JSON.parse(JSON.stringify(this.settings));
+    },
+    renderPlaylist: function() {
+      var target;
+      try {
+        target = document.querySelector(this.playlistTarget);
+      } catch (e) { console.log(e); }
+      if (!target) {
+        return;
+      }
+      var divId = 'jw-' + (new Date()).getTime();
+      var settings = this.getSettings();
+
+      settings.playlist = this.playlistSrc;
+      settings.isPlaylist = true;
+      target.insertAdjacentHTML(this.playlistTargetHandler, '<div jw-playlist-auto class="jw-loaded">' + this.getTemplate(divId) + '</div>');
+      return this.addScript(
+          this.playerSrc,
+          this.renderPlayer.bind(this, divId, settings, document.querySelector('[jw-playlist-auto]'), 0)
+      );
+    },
+    getTemplate: function(divId) {
+      return [
+        '<div id="' + divId + '-position" class="jw-player-position">',
+          '<div id="' + divId + '"></div>',
+        '</div>'
+      ].join('');
+    },
+    refresh: function(context) {
+      var players = this.getPlayers(context);
+      if (!players.length) {
+        return;
+      }
+      this.addScript(this.playerSrc, this.initPlayers.bind(this, players));
+    },
+    getPlayers: function(context) {
+      return [].slice.call((context || document.body).querySelectorAll('[data-jwplayer-id]:not(.jw-loaded)'));
+
+    },
+    initPlayers: function(players) {
+      for (var j = 0; j < players.length; j++) {
+        var divId = 'jw-' + (new Date()).getTime();
+        var mediaId = players[j].getAttribute('data-jwplayer-id');
+        players[j].innerHTML = this.getTemplate(divId);
+        players[j].className = players[j].className + ' jw-loaded';
+        var settings = this.getSettings();
+        if (j > 0) {
+          settings.autostart = false;
+        }
+
+        if (mediaId.indexOf('-') >= 0) {
+          settings.playlist = 'https://content.jwplatform.com/feeds/' + mediaId.split('-')[1] + '.json';
+          settings.isPlaylist = true;
+        } else {
+            // reorder the tracklist, put current media first
+          settings.playlist = 'https://content.jwplatform.com/v2/media/' + mediaId;
+        }
+        this.renderPlayer(divId, settings, players[j], j);
+      }
+    },
+    initTracking: function(instance, settings) {
+      if (!window.ga) {
+        return;
+      }
+      if (!this.gaInited) {
+        ga('create', this.gaAccount, 'auto', {'name': this.settings.ga.idstring});
+        this.gaInited = true;
+      }
+      var eventTarget = this.settings.ga.idstring + '.send';
+      var eventLabel = settings.isPlaylist ? 'JW Player Playlist' : 'JW Player Video';
+      instance.on('play', function() {
+        ga(eventTarget, 'event', eventLabel, 'Play', instance.getPlaylistItem().mediaid);
+      });
+      instance.on('pause', function() {
+        ga(eventTarget, 'event', eventLabel, 'Pause', instance.getPlaylistItem().mediaid);
+      });
+      instance.on('resume', function() {
+        ga(eventTarget, 'event', eventLabel, 'Resume', instance.getPlaylistItem().mediaid);
+      });
+      instance.on('buffer', function() {
+        ga(eventTarget, 'event', eventLabel, 'Buffer', instance.getPlaylistItem().mediaid);
+      });
+      instance.on('complete', function() {
+        ga(eventTarget, 'event', eventLabel, 'Complete', instance.getPlaylistItem().mediaid);
+      });
+    },
+    initSticky: function() {
+      // sticky was already init
+      if (typeof this.isScrollTimeout !== 'undefined') {
+        return;
+      }
+      var self = this;
+      this.isScrollTimeout = null;
+      this.isResizeTimeout = null;
+      this.lastSticky = null;
+      document.addEventListener('scroll', function() {
+        self.isScrollTimeout = self.scrollHandler();
+      });
+      window.addEventListener('resize', function() {
+        self.isResizeTimeout = self.resizeHandler();
+      });
+    },
+    scrollHandler: function() {
+      clearTimeout(this.isScrollTimeout);
+      return setTimeout(this.onScrollViewHandler.bind(this), 40);
+    },
+    resizeHandler: function() {
+      clearTimeout(this.isResizeTimeout);
+      return setTimeout(this.onResizeViewHandler.bind(this), 40);
+    },
+    onResizeViewHandler: function() {
+      var dimensions = this.getLeftAndWidth();
+
+      this.resizeStyles.innerHTML = [
+        '@media screen and (min-width: 668px) {',
+          '.jw-player-minimize .jw-player-position {',
+            'width:' + dimensions.width + 'px;',
+          '}',
+          this.getMinimizedPositions(dimensions),
+        '}'
+      ].join('');
+
+      // resize each players containers
+      for (var divId in this.playerContainers) {
+        if (this.playerContainers.hasOwnProperty(divId)) {
+          var dim = this.playerContainers[divId].el.getBoundingClientRect();
+          var playerWidth = dim.width;
+          var playerHeight = (playerWidth * 9)/16;
+          this.playerContainers[divId].el.style.height = playerHeight + 'px';
+        }
+      }
+    },
+    onScrollViewHandler: function() {
+      var scrollTop = this.getScrollTop();
+
+      for (var divId in this.playerContainers) {
+        if (this.playerContainers.hasOwnProperty(divId)) {
+          var instance = this.playerContainers[divId].instance;
+          var playerContainerEl = this.playerContainers[divId].el;
+          var elementHeight = this.getElementHeight(playerContainerEl);
+
+          var elementOffsetTop = this.getElementOffsetTop(playerContainerEl);
+          var offset = elementHeight/(2.5);
+          var elementY = elementOffsetTop - this.getWindowHeight();
+
+          var isInView = elementY + offset < scrollTop &&
+              elementOffsetTop + elementHeight - offset > scrollTop;
+
+          if (isInView) {
+            if (!this.interactiveId) {
+              this.interactiveId = divId;
+            }
+
+            if (this.interactiveId === divId) {
+              this.playerContainers[divId].dockable = true;
+              if (['complete', 'paused'].indexOf(instance.getState()) === -1 && this.autoplay) {
+                if (window.Purch && window.Purch.JwDisableAutoPlay !== true) {
+                  if (window.tmntag && window.tmntag.video && window.tmntag.video.autostarted) {
+                    window.tmntag.video.autostarted(divId, true);
+                  }
+                }
+              }
+            } else {
+              this.playerContainers[divId].dockable = false;
+            }
+          }
+
+          if (this.playerContainers[divId].dockable) {
+            if (this.playerContainers[divId].dockable !== isInView) {
+              this.dock(this.playerContainers[divId]);
+            } else {
+              this.undock(this.playerContainers[divId]);
+            }
+          }
+        }
+      }
+    },
+    shouldNotDock: function() {
+      return this.hasDockCookie() || this.useNativeDocking || (window.Purch && window.Purch.JwDisableSticky === true);
+    },
+    isDocked: function(container) {
+      return container.utils.hasClass(container.el, 'jw-player-minimize');
+    },
+    dock: function(container) {
+      if (this.shouldNotDock() || this.isDocked(container)) {
+        return;
+      }
+      container.el.style.height = container.instance.getHeight() + 'px';
+      container.utils.toggleClass(container.el, 'jw-player-minimize', true);
+      this.checkFooterAdOffset();
+      this.resize(container.instance, container.elPosition);
+      this.lastSticky = container;
+    },
+    undock: function(container, pause) {
+      if (!this.isDocked(container)) {
+        return;
+      }
+      if (pause) {
+        container.instance.pause(true);
+      }
+      container.utils.toggleClass(container.el, 'jw-player-minimize', false);
+      this.resize(container.instance, container.elPosition);
+    },
+    resize: function(instance, elPosition) {
+      // get .jw-player-position sizes
+      var dimensions = elPosition.getBoundingClientRect();
+      var playerWidth = dimensions.width;
+      var playerHeight = (playerWidth * 9)/16;
+      instance.resize(playerWidth, playerHeight);
+    },
+    checkFooterAdOffset: function(){
+      var footerElementsSelector = "div[id^='bom_footer'],.wpl-product-sticky.is-active,.purch-anchor-adunit,.prism-modal-content";
+      var footerElements = Array.prototype.slice.call(document.querySelectorAll(footerElementsSelector));
+      footerElements = footerElements.filter(function(el) { return el.getBoundingClientRect().height > 0; });
+      var highestTopLine = Math.min.apply(null, footerElements.map(function(el) { return el.getBoundingClientRect().top; }));
+      var offset = Math.max(window.innerHeight - highestTopLine, 0);
+      this.offsetBottomStyles.innerHTML = '.jw-player-minimize .jw-player-position { bottom: ' + offset + 'px; }';
+    },
+    getElementOffsetTop: function(el) {
+      var boundingClientRect = el.getBoundingClientRect();
+      var bodyEl = document.body;
+      var docEl = document.documentElement;
+      var scrollTop = window.pageYOffset || docEl.scrollTop || bodyEl.scrollTop;
+      var clientTop = docEl.clientTop || bodyEl.clientTop || 0;
+      return Math.round(boundingClientRect.top + scrollTop - clientTop);
+    },
+    getWindowHeight: function () {
+      return window.innerHeight || document.documentElement.clientHeight;
+    },
+    getElementHeight: function(el) {
+      var boundingClientRect = el.getBoundingClientRect();
+      return boundingClientRect.height;
+    },
+    getScrollTop: function() {
+      var docEl = document.documentElement;
+      return (window.pageYOffset || docEl.scrollTop) - (docEl.clientTop || 0);
+    },
+    setDockCookie: function() {
+      // Save data to sessionStorage
+      sessionStorage.setItem('jwDisableDocking', '1');
+    },
+    hasDockCookie: function() {
+      return sessionStorage.getItem('jwDisableDocking') === '1';
+    },
+    onUserInteraction: function(instance) {
+      for (var id in this.playerContainers) {
+        if (this.playerContainers.hasOwnProperty(id)) {
+          if (instance.getContainer().id !== id) {
+            this.playerContainers[id].dockable = false;
+            this.undock(this.playerContainers[id], true);
+          }
+        }
+      }
+      this.interactiveId = instance.getContainer().id;
+    },
+    renderPlayer: function(divId, settings, playerContainerEl, playerIndex) {
+      var self = this;
+      var playerInstance = window.jwplayer(divId);
+        if (!playerInstance) {
+        return;
+      }
+
+      if (window.Purch && window.Purch.JwDisableAutoPlay !== true && self.autoplay && playerIndex == 0){
+      //If User Device is Desktop And not a Homepage Set Autostart from False to Viewable//
+          settings.autostart = 'viewable';
+      }
+
+      playerInstance.setup(settings);
+
+      if (window.tmntag && tmntag.cmd) {
+        tmntag.cmd.push(function(){
+          try {
+            tmntag.video.start(divId, settings, playerInstance, 'video_content');
+          } catch (e) {}
+        });
+      }
+
+
+      playerInstance.addButton(
+        'https://icons.jwplayer.com/icons/white/close.svg',
+        'Close Video',
+        function () {
+          if (!self.lastSticky) {
+            return;
+          }
+          self.setDockCookie();
+          self.undock(self.lastSticky, true);
+        },
+        'close'
+      );
+
+
+      playerInstance.on('play', function(state) {
+
+        if (state.playReason === 'interaction') {
+          self.onUserInteraction(this);
+          this.setMute(false);
+        }
+      });
+
+      playerInstance.on('adPlay', function () {
+        self.onUserInteraction(this);
+      });
+
+      playerInstance.on('fullscreen', function(state) {
+        self.onUserInteraction(this);
+        if (state.fullscreen === true) {
+          this.setMute(false);
+        }
+      });
+
+      playerInstance.on('volume', function() {
+        self.onUserInteraction(this);
+      });
+
+      playerInstance.on('ready', function() {
+        var config = this.getConfig();
+
+        if (config.playlist && self.randomizePlaylist) {
+          self.randomizeVideosInPlaylist(playerInstance, config.playlist);
+        }
+
+        var playerContainer = playerInstance.getContainer();
+        var parentTitleDiv = playerContainer.querySelector('.jw-title');
+
+        this.on('pause', function(){
+            try {
+                if(parentTitleDiv && parentTitleDiv.style.display && this.getState() === 'paused'){
+                  parentTitleDiv.style.display = 'block';
+                }
+            }
+            catch(e) {
+                return false;
+            }
+        });
+
+        this.on('play', function(){
+            try {
+                if(parentTitleDiv && parentTitleDiv.style.display !== 'none' && this.getState() === 'playing'){
+                    parentTitleDiv.style.display = 'none';
+                }
+            }
+            catch(e) {
+                return false;
+            }
+        });
+
+        playerContainer.addEventListener('mouseenter', function() {
+            if(parentTitleDiv){
+                parentTitleDiv.style.display = 'block';
+            }
+        });
+
+        //Remove title and caption when mouse not on video
+        playerContainer.addEventListener('mouseleave', function() {
+            if(parentTitleDiv && playerInstance.getState() === 'playing'){
+                parentTitleDiv.style.display = 'none';
+            }
+        });
+
+        var id = this.getContainer().id; // dynamic id (ex: jw-6456464)
+
+        self.playerContainers[id] = {
+          el: playerContainerEl, // [data-jwplayer-id]
+          elPosition: document.getElementById(id + '-position'),
+          instance: this,
+          utils: this.utils
+        };
+
+        self.onScrollViewHandler();
+      });
+
+      this.initTracking(playerInstance, settings);
+      this.initSticky();
+    },
+
+    initNativeDocking: function() {
+      var possibleCollidingElementsSelectors = ['#mobile-anchor'];
+
+      function isOverlapping(e1, e2){
+        var rect1 = e1 instanceof Element ? e1.getBoundingClientRect() : false;
+        var rect2 = e2 instanceof Element ? e2.getBoundingClientRect() : false;
+
+        if(rect1 && rect2){
+          return !(rect1.bottom < rect2.top || rect1.top > rect2.bottom);
+        }
+      }
+
+      function curry(f) { return function(a) { return function(b) { return f(a, b); }; }; };
+      function isVisible(element) { return window.getComputedStyle(element).display !== 'none'; }
+      function getHeight(element) { return element.getBoundingClientRect().height; }
+
+      var remSize = parseFloat(getComputedStyle(document.documentElement).fontSize)
+
+      window.setInterval(function() {
+        var dockedPlayer = document.querySelector('.jw-flag-floating .jw-wrapper');
+
+        if (dockedPlayer) {
+          var isCollidingWithDockedPlayer = curry(isOverlapping)(dockedPlayer);
+
+          var possibleVisibleCollidingElements = possibleCollidingElementsSelectors
+          .map(document.querySelector.bind(document))
+          .filter(Boolean)
+          .filter(isVisible);
+
+          var collidingElementsHeight = possibleVisibleCollidingElements
+          .filter(isCollidingWithDockedPlayer)
+          .map(getHeight);
+
+          var maxOffset = Math.max.apply(null, collidingElementsHeight)
+
+          if (maxOffset > 0) {
+            dockedPlayer.style.bottom = (maxOffset + remSize) + 'px';
+          } else if (!possibleVisibleCollidingElements.length) {
+            dockedPlayer.style.bottom = remSize + 'px';
+          }
+        }
+      }, 300);
+    },
+
+    randomizeVideosInPlaylist: function(playerInstance, playlist) {
+      function shuffle(arr) {
+        var j, x, i;
+        for (i = arr.length - 1; i > 0; i--) {
+            j = Math.floor(Math.random() * (i + 1));
+            x = arr[i];
+            arr[i] = arr[j];
+            arr[j] = x;
+        }
+        return arr;
+      }
+
+      playerInstance.load(shuffle(playlist))
+    }
+  };
+
+  window.Purch = window.Purch || {};
+  window.Purch.Jwplayer = Jwplayer;
+})();

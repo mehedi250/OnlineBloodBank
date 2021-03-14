@@ -1,0 +1,155 @@
+body{
+    margin: 10px 10px;
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+.header1{
+    height: 2.7cm;
+    border: 4px double rgb(255, 0, 0);
+}
+.header1{
+    position: -webkit-sticky; 
+  position: sticky;
+  top: 0;
+  background-color: white;
+}
+.header2{
+    padding-bottom: 1.5cm;
+
+}
+.textPart{
+    padding: 0 1cm;
+
+}
+.img1{
+    height: 2.6cm;
+}
+.headRight{
+    float: right;
+    padding-left: 15px;
+}
+.headLeft{
+    padding-left: 15px;
+    padding-right: 5px;
+    float: left;
+
+}
+
+.btn-group .button {
+    background-color: rgb(32, 39, 33); 
+    border: 1px solid rgb(16, 58, 16);
+    color: white;
+    padding: 12px 45px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+    float: left;
+
+  }
+  
+  .btn-group .button:not(:last-child) {
+    border-right: none; 
+  }
+  
+  .btn-group .button:hover {
+    background: linear-gradient(rgb(255, 153, 0),rgb(145, 0, 0));
+  }
+
+
+  .sideMenu {
+      height: 100%;
+
+    width: 7cm;
+    position: fixed;
+    z-index: 1;
+    top: 4.5cm;
+    left: 10px;
+    background-color: #111;
+    overflow-x: hidden;
+    padding-top: 20px;
+  }
+  
+  .sideMenu  a {
+    padding: 6px 8px 6px 16px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #818181;
+    display: block;
+  }
+  
+  .sideMenu  a:hover {
+    color: #f1f1f1;
+  }
+  
+  .textPart {
+    margin-left: 7cm;
+    font-size: 20px
+    padding: 0px 10px;
+  }
+  
+
+table{
+  width: 90%;
+  border: 1px solid wheat;
+}
+table {
+
+  font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+table td, table th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+table tr:nth-child(even){background-color: #f2f2f2;}
+
+table tr:hover {background-color: #ddd;}
+
+table th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #4CAF50;
+  color: white;
+}
+.tabl2 {
+  border: 0;
+
+}
+.tabl2 tr:hover{
+  background-color: white;
+}
+.fline{
+  background-color: rgb(218, 255, 210);
+}
+.fline:hover{
+  background-color: rgb(210, 248, 202);
+}
+.tabsmall{
+  font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 90%;
+  text-align: center;
+
+}
+.bback{
+  background-color: white;
+}
+
+.blood-tabl2{
+  widows: 100%;
+
+}
+table{
+  border-width: 0 px;
+  border: none;
+}
+
+
+
+
+

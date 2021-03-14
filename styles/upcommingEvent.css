@@ -1,0 +1,80 @@
+html{
+    background: url("image/blu222.jpg") no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+body{
+    margin: 0px 10px;
+    padding: 0 auto;
+    background-color: rgba(197, 197, 197, 0.288);
+}
+.header1{
+    height: 2.7cm;
+    background-color: rgb(255, 255, 255);
+    border: 4px double rgb(255, 0, 0);
+}
+
+.header2{
+    padding-bottom: 1.5cm;
+}
+.headRight{
+    float: right;
+    padding-left: 15px;
+}
+.headLeft{
+    padding-left: 15px;
+    padding-right: 5px;
+    float: left;
+}
+.img1{
+    height: 2.6cm;
+}
+
+.btn-group .button {
+    background-color: rgb(32, 39, 33); 
+    border: 1px solid rgb(16, 58, 16);
+    color: white;
+    padding: 12px 45px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+    float: left;
+
+  }
+  
+  .btn-group .button:not(:last-child) {
+    border-right: none; 
+  }
+  
+  .btn-group .button:hover {
+    background: linear-gradient(rgb(255, 153, 0),rgb(145, 0, 0));
+  }
+
+.header2{
+    position: -webkit-sticky; 
+    position: sticky;
+    top: 0;
+}
+div{
+    margin-top: 0.3em;
+}
+
+form{
+    
+    margin: 0 auto;
+    width: 60%;
+    margin:50px auto;
+    background-color: #ffffffc9;
+    -webkit-box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.75);
+    -moz-box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.75);
+    padding: 50px;
+    padding-bottom: 2cm;
+    
+}
+
+

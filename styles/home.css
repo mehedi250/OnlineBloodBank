@@ -1,0 +1,231 @@
+
+html{
+    background: url("image/b222.jpg") no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+body{
+    margin: 0 auto;
+    padding: 0 10px;
+}
+.header1{
+    height: 2.7cm;
+    border: 4px double rgb(255, 0, 0);
+}
+.header1{
+    background-color: white;
+}
+
+.header2{
+    position: -webkit-sticky; 
+    position: sticky;
+    top: 0;
+   
+    padding-bottom: 1.5cm;
+}
+.part3{
+    margin: 0;
+    height: 10cm;
+}
+
+.img1{
+    height: 2.6cm;
+}
+.img3{
+    height: 6.5cm;
+    padding-left: 1cm;
+    padding-right: 1cm;
+}
+.img4{
+    padding-left: 1cm;
+    padding-bottom: 1.4cm;
+    height: 5cm;
+}
+.img5{
+    height: 1.5cm;
+}
+
+.headRight{
+    float: right;
+    padding-left: 15px;
+}
+.headLeft{
+    padding-left: 15px;
+    padding-right: 5px;
+    float: left;
+}
+.helpline{
+    height: 3cm;
+
+}
+
+.leftpart{
+    float: left;
+    width: 20cm;
+    display: inline;
+}
+.boy{
+    height: 8cm;
+    position: relative;
+}
+
+
+.btn-group .button {
+    background-color: rgb(32, 39, 33); 
+    border: 1px solid rgb(16, 58, 16);
+    color: white;
+    padding: 12px 45px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+    float: left;
+
+  }
+  
+  .btn-group .button:not(:last-child) {
+    border-right: none; 
+  }
+  
+  .btn-group .button:hover {
+    background: linear-gradient(rgb(255, 153, 0),rgb(145, 0, 0));
+  }
+
+
+
+.form1,.form2{
+    margin: 0 auto;
+    width: 16.3cm;
+    height: 9cm;
+    display: inline-block;
+    border:1px solid rgb(255, 85, 85); 
+    border-radius: 25px;
+    padding: 3px;
+    padding-top: 0.5cm;
+    background-color: rgba(245, 230, 208, 0.705);
+    
+}
+.form1{
+    float: left;
+    padding-left: 1cm;
+    
+}
+.form2{
+    float: right;
+    padding-left: 1cm;
+}
+.form3{
+    margin: 0 auto;
+    border:1px solid rgb(255, 85, 85); 
+    padding: 3px;
+    padding-top: 0.3cm;
+    padding-bottom: 0.3cm;
+
+}
+
+label{
+    display: inline-block;
+    width: 90px;
+    text-align: right;
+}
+
+input{
+    padding: 3px 5px;
+    font: 1em sans-serif;
+    width: 200px;
+    border-radius: 10px;
+    border: 1px solid rgb(255, 104, 104);
+    
+}
+
+
+
+div{
+    margin-top: 0.3em;
+}
+
+.buttonSub{
+    padding: 6px 40px;
+    border-radius: 15px;
+    border: double rgb(40, 255, 111);
+    color: green;
+    font-size: 18px;
+    background-color: rgb(204, 204, 204);
+}
+.buttonSub:hover{
+    
+    background-color: rgb(177, 248, 195);
+}
+.forgetPass{
+    padding: 5px 10px;
+    font-size: 16px;
+    color: red;
+    border: none;
+    
+}
+
+.inlin{
+    float: left;
+    margin: 0;
+    padding-right: 0.3cm;
+}
+h3{
+    color: green;
+}
+.sinLeft{
+    float: left;
+    width:9cm;
+    
+}
+.smilphoto{
+   
+    height: 5cm;
+    margin: 0;
+    padding-left: 1cm;
+}
+
+.same{
+    display: inline block;
+}
+.space{
+    padding-top: 1em;
+}
+
+p,h2{
+
+    letter-spacing: 1px;
+    
+}
+.blood{
+    float: left;
+    height: 1cm;
+    margin: 0;
+    padding-top: 0.4cm;
+}
+.color-green{
+   
+    color: green;
+}
+a{
+    text-orientation: none;
+}
+.user{
+    height: 50px;
+    padding-left: 1cm;
+}
+.c1{
+    width: 115px;
+}
+.c2{
+    width: 120px;
+}
+.c3{
+    width: 140px;
+}
+a{
+    text-decoration: none;
+}
+

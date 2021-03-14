@@ -1,0 +1,137 @@
+html{
+    background: url("image/blu222.jpg") no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+body{
+    margin: 0 auto;
+    padding: 0px 10px;
+}
+.header1{
+    height: 2.7cm;
+    background-color: rgb(255, 255, 255);
+    border: 4px double rgb(255, 0, 0);
+}
+
+.header2{
+    padding-bottom: 1.5cm;
+}
+.headRight{
+    float: right;
+    padding-left: 15px;
+}
+.headLeft{
+    padding-left: 15px;
+    padding-right: 5px;
+    float: left;
+}
+.img1{
+    height: 2.6cm;
+}
+
+.btn-group .button {
+    background-color: rgb(32, 39, 33); 
+    border: 1px solid rgb(16, 58, 16);
+    color: white;
+    padding: 12px 45px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+    float: left;
+
+  }
+  
+  .btn-group .button:not(:last-child) {
+    border-right: none; 
+  }
+  
+  .btn-group .button:hover {
+    background: linear-gradient(rgb(255, 153, 0),rgb(145, 0, 0));
+  }
+
+.header2{
+    position: -webkit-sticky; 
+    position: sticky;
+    top: 0;
+}
+div{
+    margin-top: 0.3em;
+}
+
+.form1{
+    margin: 0 auto;
+    width: 40%;
+    margin: 0 auto;
+    background-color: #ffffff85;
+    -webkit-box-shadow: 0px 0px 20px 0px rgba(0, 0, 0, 0.75);
+    -moz-box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 20px 0px rgba(0,0,0,0.75);
+    padding: 1px;
+}
+
+
+
+.tab2{
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+    width: 60%;
+    margin: 30px auto;
+    border-collapse: collapse;
+    text-align: left;
+    background-color: pink;
+}
+.tab2 tr {
+    border-bottom: 1px solid #cbcbcb;
+}
+.tab2 th{
+    background-color: rgb(238, 96, 61);
+}
+.tab2 td{
+    border: none;
+    height: 30px;
+    padding: 2px;
+}
+.tab2 tr:nth-child(even){background-color: rgb(252, 209, 216);}
+.tab2 tr:hover {
+    background: rgb(255, 188, 188);
+}
+
+
+
+
+select{
+    width: 200px;
+    font: 20px sans-serif;
+
+}
+.b1{
+    margin: 0 auto;
+    padding: 15px 20px;
+    border-radius: 8px;
+    background-color: rgb(0, 161, 0);
+    border: 2px solid rgb(255, 8, 0);
+    
+}
+.b1:hover{
+    background-color: rgb(59, 105, 255);
+    border: 2px solid rgb(13, 109, 0);
+}
+
+.profile_btn {
+    text-decoration: none;
+    padding: 2px 5px;
+    background: #2E8B57;
+    color: white;
+    border-radius: 3px;
+    float: center;
+}
+h2{
+    text-align: center;
+}
+
+
+
